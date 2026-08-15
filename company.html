@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<!-- ============================================================
+  国产动画资料库 | 公司总览列表页 company.html
+  ------------------------------------------------------------
+  结构（自上而下）：
+  1. 页头：标题 + 说明 + 公司总数（JS 填充）
+  2. 筛选面板：关键词搜索 + 制作类型（多选）
+  3. 制作类型气泡图（#bubble-chart，ECharts 渲染，见设想 §5.3.2）：
+     X 轴 = 作品数（产能），Y 轴 = 推荐率（品控），气泡大小 = 作品数，
+     颜色 = 制作类型；样本不足（已评级 < 3）的公司置灰、Y 轴为 0
+  4. 结果工具栏：命中数 + 排序（作品数 / 活跃年份 / 推荐率）
+  5. 公司列表（#company-list，行式列表）
+
+  依赖：css/style.css、tv-data.js、js/common.js、js/company.js
+  图表：ECharts（CDN，离线时自动降级为文字提示）
+  ============================================================ -->
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>公司总览 | 国产动画资料库</title>
+  <meta name="description" content="国产动画制作公司总览：按公司聚合旗下作品，查看产能、品控与制作类型分布。">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+  <!-- 顶栏（由 common.js 挂载） -->
+  <header class="site-header" id="site-header"></header>
+
+  <main class="site-main">
+    <div class="container">
+
+      <!-- ============ 1. 页头 ============ -->
+      <section class="page-head">
+        <h1>公司总览</h1>
+        <p class="sub">按公司聚合旗下剧集动画与动画电影，查看产能、品控指标与制作类型。已评级作品不足 3 部的公司显示"样本不足"，不参与品控排序。</p>
+        <p class="stat-line">
+          <span>共收录 <strong id="stat-count">…</strong> 家制作公司</span>
+        </p>
+      </section>
+
+      <!-- ============ 2. 筛选面板 ============ -->
+      <section class="filter-panel" aria-label="公司筛选">
+        <div class="filter-row">
+          <span class="f-label">关键词</span>
+          <div class="filter-search">
+            <input type="search" id="f-q" placeholder="搜索公司名…" aria-label="公司名搜索">
+          </div>
+          <span class="f-label">类型</span>
+          <div class="chip-group" id="f-tech"></div>
+        </div>
+      </section>
+
+      <!-- ============ 3. 制作类型气泡图 ============ -->
+      <section class="chart-box">
+        <h2>制作类型分布</h2>
+        <p class="sub">X 轴作品数（产能）· Y 轴推荐率（品控）· 气泡大小作品数 · 颜色制作类型。灰色气泡为样本不足公司。</p>
+        <div class="chart chart--sm" id="bubble-chart"></div>
+      </section>
+
+      <!-- ============ 4. 结果工具栏 ============ -->
+      <div class="list-toolbar">
+        <p class="result-count">共 <strong id="result-count">0</strong> 家公司</p>
+        <div class="sort-box">
+          <label for="f-sort">排序</label>
+          <select id="f-sort">
+            <option value="works">作品数（多 → 少）</option>
+            <option value="years">活跃年份数（多 → 少）</option>
+            <option value="rate">推荐率（高 → 低）</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- ============ 5. 公司列表（company.js 渲染） ============ -->
+      <div id="company-list"></div>
+
+    </div>
+  </main>
+
+  <!-- 页脚（由 common.js 挂载） -->
+  <footer class="site-footer" id="site-footer"></footer>
+
+  <!-- 脚本：ECharts（CDN）→ 数据 → 公共逻辑 → 本页逻辑 -->
+  <script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+  <script src="tv-data.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/company.js"></script>
+</body>
+
+</html>

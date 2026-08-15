@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<!-- ============================================================
+  国产动画资料库 | 剧集动画列表页 series.html
+  ------------------------------------------------------------
+  结构（自上而下）：
+  1. 页头：标题 + 说明 + 收录统计（JS 填充）
+  2. 筛选面板（#filter-panel，由 js/series.js 动态生成选项）：
+     关键词搜索 / 年份区间 / 技术类型（多选）/ 改编来源（多选）/ 对外评级（多选）
+  3. 结果工具栏：命中数量 + 排序方式
+  4. 作品网格（#work-grid，JS 渲染作品卡）
+
+  依赖：css/style.css、tv-data.js、js/common.js、js/series.js
+  ============================================================ -->
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>剧集动画 | 国产动画资料库</title>
+  <meta name="description" content="国产剧集动画信息检索：按平台、技术类型、题材、评级组合筛选。">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+  <!-- 顶栏（由 common.js 挂载） -->
+  <header class="site-header" id="site-header"></header>
+
+  <main class="site-main">
+    <div class="container">
+
+      <!-- ============ 1. 页头 ============ -->
+      <section class="page-head">
+        <h1>剧集动画</h1>
+        <p class="sub">收录网络平台与电视渠道的国产剧集动画。可组合筛选：关键词、年份、技术类型、改编来源、评级。</p>
+        <p class="stat-line">
+          <span>共收录 <strong id="stat-count">…</strong> 部</span>
+          <span class="sep"></span>
+          <span>数据更新：见各作品详情页</span>
+        </p>
+      </section>
+
+      <!-- ============ 2. 筛选面板（选项由 series.js 生成） ============ -->
+      <section class="filter-panel" id="filter-panel" aria-label="作品筛选">
+        <!-- 关键词 + 年份区间 -->
+        <div class="filter-row">
+          <span class="f-label">关键词</span>
+          <div class="filter-search">
+            <input type="search" id="f-q" placeholder="搜索作品名、导演、公司…" aria-label="关键词搜索">
+          </div>
+          <span class="f-label">年份</span>
+          <div class="year-range">
+            <input type="number" id="f-year-from" min="1970" max="2030" placeholder="起" aria-label="起始年份">
+            <span>至</span>
+            <input type="number" id="f-year-to" min="1970" max="2030" placeholder="止" aria-label="结束年份">
+          </div>
+        </div>
+        <!-- 技术类型 / 改编来源 / 评级：chip 多选组，由 series.js 按数据实际取值生成 -->
+        <div class="filter-row">
+          <span class="f-label">类型</span>
+          <div class="chip-group" id="f-tech"></div>
+        </div>
+        <div class="filter-row">
+          <span class="f-label">改编来源</span>
+          <div class="chip-group" id="f-adaptation"></div>
+        </div>
+        <div class="filter-row">
+          <span class="f-label">评级</span>
+          <div class="chip-group" id="f-grade"></div>
+        </div>
+      </section>
+
+      <!-- ============ 3. 结果工具栏 ============ -->
+      <div class="list-toolbar">
+        <p class="result-count">共 <strong id="result-count">0</strong> 部作品</p>
+        <div class="sort-box">
+          <label for="f-sort">排序</label>
+          <select id="f-sort">
+            <option value="year-desc">年份（新 → 旧）</option>
+            <option value="year-asc">年份（旧 → 新）</option>
+            <option value="grade">评级（优 → 差）</option>
+            <option value="name">名称（字母序）</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- ============ 4. 作品网格（series.js 渲染） ============ -->
+      <div class="work-grid" id="work-grid"></div>
+
+    </div>
+  </main>
+
+  <!-- 页脚（由 common.js 挂载） -->
+  <footer class="site-footer" id="site-footer"></footer>
+
+  <!-- 脚本：数据 → 公共逻辑 → 本页逻辑 -->
+  <script src="tv-data.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/series.js"></script>
+</body>
+
+</html>

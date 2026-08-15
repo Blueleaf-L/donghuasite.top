@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- 站标 favicon：朱砂印章 + 白"典"字（与站名印章一致） -->
+  <rect width="64" height="64" rx="12" fill="#b23a30"/>
+  <text x="32" y="44" font-family="'Noto Serif SC','Source Han Serif SC','Songti SC','SimSun',serif" font-size="34" font-weight="700" fill="#ffffff" text-anchor="middle">典</text>
+</svg>

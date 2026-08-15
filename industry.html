@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<!-- ============================================================
+  国产动画资料库 | 行业资讯页 industry.html
+  ------------------------------------------------------------
+  展示行业趋势图表（由 js/industry.js 从作品数据聚合后渲染）：
+  1. 年度产量趋势
+  2. 技术类型构成（堆叠柱状）
+  3. 评级分布年度变化（堆叠柱状）
+  4. 改编来源构成（堆叠柱状）
+  5. 公司产量 TOP10（中性统计，仅产量不涉及品控）
+
+  数据口径（设想 §5.4.2）：
+  仅统计本站已收录作品，不代表行业全量。
+  平台分布 / 新作 vs 续作 / 月度开播分布 因数据暂无对应字段，
+  待 CSV 补充后在此追加图表。
+
+  依赖：css/style.css、tv-data.js、js/common.js、js/industry.js
+  图表：ECharts（CDN，离线时自动降级）
+  ============================================================ -->
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>行业资讯 | 国产动画资料库</title>
+  <meta name="description" content="国产动画行业趋势图表：年度产量、技术类型构成、评级分布、改编来源、公司产量排行。">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+  <!-- 顶栏（由 common.js 挂载） -->
+  <header class="site-header" id="site-header"></header>
+
+  <main class="site-main">
+    <div class="container">
+
+      <!-- ============ 页头 ============ -->
+      <section class="page-head">
+        <h1>行业资讯</h1>
+        <p class="sub">本站收录作品的统计视角，观察行业整体走向。数据覆盖本站收录范围，不代表行业全量；中性统计，仅反映收录口径。</p>
+      </section>
+
+      <!-- 图表容器（industry.js 逐个渲染） -->
+      <section class="chart-box">
+        <h2>年度产量趋势</h2>
+        <p class="sub">每年收录新作数量（总量视角）</p>
+        <div class="chart" id="chart-yearly"></div>
+      </section>
+
+      <section class="chart-box">
+        <h2>技术类型构成</h2>
+        <p class="sub">每年 2D / 3D / 三渲二 / 其他 作品数（堆叠）</p>
+        <div class="chart" id="chart-tech"></div>
+      </section>
+
+      <section class="chart-box">
+        <h2>评级分布年度变化</h2>
+        <p class="sub">每年各对外评级档位作品数（堆叠），观察质量趋势</p>
+        <div class="chart" id="chart-grade"></div>
+      </section>
+
+      <section class="chart-box">
+        <h2>改编来源构成</h2>
+        <p class="sub">原创 / 小说改 / 漫画改 / 游戏改 年度占比（堆叠）</p>
+        <div class="chart" id="chart-adaptation"></div>
+      </section>
+
+      <section class="chart-box">
+        <h2>公司产量 TOP10</h2>
+        <p class="sub">收录作品数最多的 10 家公司（中性统计，仅产量、不涉及品控排名）</p>
+        <div class="chart chart--sm" id="chart-company"></div>
+      </section>
+
+      <!-- ============ 待数据补充说明 ============ -->
+      <section class="detail-block">
+        <h2>暂未开放的图表 <span class="sub">待数据补充后启用</span></h2>
+        <p class="db-empty" style="line-height:2">
+          平台分布（每年各平台作品数）：数据暂无"播出平台"字段。<br>
+          新作 vs 续作：数据暂无"系列"字段。<br>
+          月度开播分布：数据暂无完整上映日期。<br>
+          以上图表将随 CSV 数据补充自动加入本页。
+        </p>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- 页脚（由 common.js 挂载） -->
+  <footer class="site-footer" id="site-footer"></footer>
+
+  <!-- 脚本 -->
+  <script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+  <script src="tv-data.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/industry.js"></script>
+</body>
+
+</html>

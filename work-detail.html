@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<!-- ============================================================
+  国产动画资料库 | 作品详情页 work-detail.html（模板页）
+  ------------------------------------------------------------
+  本页为共用模板：通过 URL 参数 ?id=xxx 指定作品，
+  剧集动画与动画电影共用（由 js/work-detail.js 按 type 区分渲染）。
+  示例：work-detail.html?id=5
+
+  结构（自上而下）：
+  1. 面包屑（JS 按类型生成"首页 / 剧集动画"）
+  2. 详情头：封面 + 作品名 + 评级徽标 + 元信息行（年份 / 类型 / 题材 / 导演 / 公司）
+  3. 简介区块（数据暂无简介时显示空状态）
+  4. 评分区块（豆瓣 / MAL / BGM，数据暂无时显示"暂无评分"）
+  5. 详细信息表格（剧集：类型/题材/导演/公司；电影：上映日期/状态/票房等）
+  6. 系列作品区块（数据暂无 series 字段时整体不渲染，见 work-detail.js 注释）
+
+  依赖：css/style.css、tv-data.js、js/common.js、js/work-detail.js
+  ============================================================ -->
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>作品详情 | 国产动画资料库</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+  <!-- 顶栏（由 common.js 挂载） -->
+  <header class="site-header" id="site-header"></header>
+
+  <main class="site-main">
+    <div class="container">
+
+      <!-- 面包屑（work-detail.js 填充） -->
+      <nav class="breadcrumb" id="breadcrumb" aria-label="面包屑"></nav>
+
+      <!-- ============ 详情头 ============ -->
+      <section class="detail-head">
+        <div class="dh-cover" id="dh-cover"></div>
+        <div class="detail-body">
+          <h1 id="dh-title">…</h1>
+          <div class="dh-badges" id="dh-badges"></div>
+          <div class="dh-meta" id="dh-meta"></div>
+          <p class="dh-note">评级仅供参考，作品质量请以自身观看体验为准。</p>
+        </div>
+      </section>
+
+      <!-- ============ 简介 ============ -->
+      <section class="detail-block">
+        <h2>简介 <span class="sub">synopsis</span></h2>
+        <p class="synopsis" id="synopsis">简介整理中。</p>
+      </section>
+
+      <!-- ============ 评分（豆瓣 / MAL / BGM） ============ -->
+      <section class="detail-block">
+        <h2>评分 <span class="sub">定期更新，非实时数据</span></h2>
+        <table class="info-table" id="score-table">
+          <tbody>
+            <tr>
+              <th>豆瓣</th>
+              <td class="it-empty">暂无评分</td>
+            </tr>
+            <tr>
+              <th>MAL</th>
+              <td class="it-empty">暂无评分</td>
+            </tr>
+            <tr>
+              <th>Bangumi</th>
+              <td class="it-empty">暂无评分</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- ============ 详细信息 ============ -->
+      <section class="detail-block">
+        <h2>详细信息 <span class="sub" id="info-sub"></span></h2>
+        <table class="info-table" id="info-table">
+          <tbody><!-- work-detail.js 按作品类型填充 --></tbody>
+        </table>
+      </section>
+
+      <!-- ============ 系列作品（数据补充 series 字段后自动启用） ============ -->
+      <section class="detail-block" id="series-block" hidden>
+        <h2>系列作品 <span class="sub">同 IP 关联条目，按年份排序</span></h2>
+        <div id="series-list"></div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- 页脚（由 common.js 挂载） -->
+  <footer class="site-footer" id="site-footer"></footer>
+
+  <!-- 脚本 -->
+  <script src="tv-data.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/work-detail.js"></script>
+</body>
+
+</html>
