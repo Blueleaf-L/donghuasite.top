@@ -304,7 +304,9 @@ img { max-width: 100%; display: block; }
 }
 .work-card:hover { text-decoration: none; color: var(--text); }
 
-/* 封面区：3:4 竖版，圆角纸卡 */
+/* 封面区：3:4 竖版，圆角纸卡
+   注意：本容器不能有 padding，否则图片被内边距挤出、四周露底色；
+   占位封面（.cover-placeholder）自带内边距，铺满需求由 object-fit: cover 保证 */
 .work-card .cover {
   aspect-ratio: 3 / 4;
   border-radius: var(--r-md);
@@ -313,7 +315,6 @@ img { max-width: 100%; display: block; }
   overflow: hidden;
   position: relative;
   display: flex; align-items: center; justify-content: center;
-  padding: var(--sp-3);
   transition: border-color 160ms ease-out, box-shadow 160ms ease-out, transform 160ms ease-out;
 }
 .work-card:hover .cover {
@@ -356,15 +357,35 @@ img { max-width: 100%; display: block; }
   font-size: var(--fs-small); color: var(--text-3);
 }
 
-/* 横向滚动行（首页强推荐区） */
+/* 横向滚动行（首页强推荐区）：支持鼠标拖拽（cursor grab） */
 .h-scroll {
   display: flex; gap: var(--sp-4);
   overflow-x: auto; padding-bottom: var(--sp-3);
   scroll-snap-type: x proximity;
   scrollbar-width: none;
+  cursor: grab;
 }
+.h-scroll.dragging { cursor: grabbing; scroll-snap-type: none; }
 .h-scroll::-webkit-scrollbar { display: none; }
 .h-scroll .work-card { flex: 0 0 150px; scroll-snap-align: start; }
+
+/* 横滚区块标题行：标题 + 左右滚动按钮 */
+.h-scroll-head {
+  display: flex; align-items: center; gap: var(--sp-3);
+  margin-bottom: var(--sp-4);
+}
+.h-scroll-head h2 { margin-bottom: 0; }
+.h-scroll-head .sub { color: var(--text-2); font-size: var(--fs-small); }
+.h-scroll-nav {
+  margin-left: auto;
+  display: flex; gap: 8px;
+}
+.h-scroll-nav .btn {
+  width: 34px; height: 34px; padding: 0;
+  border-radius: var(--r-pill);
+  font-size: 15px; line-height: 1;
+}
+.h-scroll-nav .btn:disabled { opacity: 0.35; cursor: default; box-shadow: none; }
 
 /* ============================================================
    8. 搜索区（首页）

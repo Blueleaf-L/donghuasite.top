@@ -154,12 +154,12 @@
         return "<tr><th>" + r[0] + "</th><td>" + window.App.escapeHtml(r[1]) + "</td></tr>";
       }).join("");
 
-    // ---- 评分表格（豆瓣 / MAL / BGM） ----
+    // ---- 评分表格（豆瓣 / Bangumi） ----
     // 数据有 douban_score / bgm_score 则显示，无则"暂无评分"；
-    // 评分按设想 §5.1.2 定期更新，非实时数据；MAL 数据源暂未接入。
+    // 评分按设想 §5.1.2 定期更新，非实时数据。
+    // 注：MAL 已按用户决定移除（数据表仅保留豆瓣与 BGM 两列）。
     var scoreRows = [
       ["豆瓣", work.douban_score],
-      ["MAL", null],
       ["Bangumi", work.bgm_score]
     ];
     document.getElementById("score-table").querySelector("tbody").innerHTML =

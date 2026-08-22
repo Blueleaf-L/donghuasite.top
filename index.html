@@ -47,9 +47,16 @@
 
       <!-- ============ 3. 年度推荐 · 强推荐 作品 ============ -->
       <section class="home-block">
-        <h2>年度推荐 · 强推荐 作品</h2>
-        <p class="sub">评级仅供参考，作品质量请以自身观看体验为准。</p>
-        <!-- 卡片行由 js/index.js 渲染（横向滚动） -->
+        <div class="h-scroll-head">
+          <h2>年度推荐 · 强推荐 作品</h2>
+          <span class="sub">评级仅供参考，作品质量请以自身观看体验为准。</span>
+          <!-- 左右滚动按钮（PC 上除滚轮/拖拽外的滚动入口） -->
+          <div class="h-scroll-nav">
+            <button type="button" class="btn" id="top-works-prev" aria-label="上一组">←</button>
+            <button type="button" class="btn" id="top-works-next" aria-label="下一组">→</button>
+          </div>
+        </div>
+        <!-- 卡片行由 js/index.js 渲染（横向滚动：按钮 / 滚轮 / 鼠标拖拽） -->
         <div class="h-scroll" id="top-works"></div>
       </section>
 
