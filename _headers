@@ -1,0 +1,15 @@
+# ============================================================
+# Cloudflare Pages 响应头配置（_headers）
+# 语法：路径规则 → 响应头（具体规则覆盖通用规则）
+# 策略：封面图基本不变 → 30 天强缓存；HTML/JS/CSS 不设长缓存，
+#       保证每次更新后用户能及时拿到新版（Cloudflare 边缘默认协商缓存）。
+# ============================================================
+
+# 封面图：30 天不可变缓存（图片文件名 = 作品 id，内容变更时文件名随之变化）
+/covers/*
+  Cache-Control: public, max-age=2592000, immutable
+
+# 全站基础安全头
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
