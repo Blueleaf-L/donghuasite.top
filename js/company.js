@@ -32,8 +32,14 @@
   function buildCompanies() {
     companies = window.App.getAllCompanies().map(function (name) {
       var s = window.App.getCompanyStats(name);
-      // 制作类型：混合型优先标注（主要类型占比 < 70% 且不止一种）
-      var techLabel = s.techMixed ? "混合型" : s.techMain;
+      // 制作类型：优先公司表（companies.js 的 type 字段），
+      // 未录入时按作品聚合推导（主要类型占比 < 70% 且不止一种 → 混合型）
+      var compType = null;
+      if (window.COMPANIES) {
+        var found = window.COMPANIES.filter(function (c) { return c.name === name; })[0];
+        if (found && found.type) compType = found.type;
+      }
+      var techLabel = compType || (s.techMixed ? "混合型" : s.techMain);
       return {
         name: name,
         tech: techLabel,

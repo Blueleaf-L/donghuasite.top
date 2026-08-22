@@ -53,7 +53,13 @@
     // ---- 标题 + 徽标 ----
     document.title = name + " | 国产动画资料库";
     document.getElementById("dh-name").textContent = name;
-    var techTag = s.techMixed ? "混合型" : s.techMain;
+    // 制作类型：优先公司表（companies.js），未录入时按作品聚合推导
+    var compType = null;
+    if (window.COMPANIES) {
+      var found = window.COMPANIES.filter(function (c) { return c.name === name; })[0];
+      if (found && found.type) compType = found.type;
+    }
+    var techTag = compType || (s.techMixed ? "混合型" : s.techMain);
     document.getElementById("dh-badges").innerHTML =
       window.App.tagHtml(techTag) +
       (s.sampleEnough ? "" : '<span class="badge badge--pending">样本不足</span>');

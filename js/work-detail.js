@@ -115,9 +115,13 @@
     // ---- 封面（无图自动占位） ----
     document.getElementById("dh-cover").innerHTML = window.App.coverHtml(work, typeLabel);
 
-    // ---- 简介：数据暂无简介字段，显示空状态 ----
-    document.getElementById("synopsis").innerHTML =
-      '<span class="syn-empty">简介整理中。该条目信息将随数据补充逐步完善。</span>';
+    // ---- 简介（数据有 synopsis 则显示；无则空状态） ----
+    if (work.synopsis) {
+      document.getElementById("synopsis").textContent = work.synopsis;
+    } else {
+      document.getElementById("synopsis").innerHTML =
+        '<span class="syn-empty">简介整理中，该条目信息将随数据补充逐步完善。</span>';
+    }
 
     // ---- 详细信息表格（按类型） ----
     var infoRows;
@@ -134,34 +138,45 @@
     } else {
       infoRows = [
         ["播出年份", window.App.fmtYear(work.year)],
+        ["开播日期", work.release_date || "待补"],
+        ["集数", work.episodes != null ? work.episodes + " 集" : "待补"],
+        ["播出平台", work.platform && work.platform.length ? work.platform.join("、") : "待补"],
         ["技术类型", window.App.fmtTech(work.tech)],
         ["改编来源", window.App.fmtAdaptation(work.adaptation)],
         ["导演", orEmpty(work.director)],
         ["制作公司", work.company || "待补"]
       ];
     }
-    // 注：播出平台、集数、评分等字段尚未进入数据（tv-data.js 无对应列），
-    // 待 CSV 补充后在此追加行即可自动显示。
+    // 注：播出平台、集数、评分等字段的数据管道见 build-data.py（Excel 表 → tv-data.js）
     document.getElementById("info-sub").textContent = isMovie ? "movie" : "tv";
     document.getElementById("info-table").querySelector("tbody").innerHTML =
       infoRows.map(function (r) {
         return "<tr><th>" + r[0] + "</th><td>" + window.App.escapeHtml(r[1]) + "</td></tr>";
       }).join("");
 
-    // ---- 评分表格（数据暂无评分字段，保留"暂无评分"空状态） ----
-    // 待 CSV 增加 douban_score / mal_score / bgm_score 与对应更新时间后，
-    // 在此读取并填充，同时删除"暂无"占位。
+    // ---- 评分表格（豆瓣 / MAL / BGM） ----
+    // 数据有 douban_score / bgm_score 则显示，无则"暂无评分"；
+    // 评分按设想 §5.1.2 定期更新，非实时数据；MAL 数据源暂未接入。
+    var scoreRows = [
+      ["豆瓣", work.douban_score],
+      ["MAL", null],
+      ["Bangumi", work.bgm_score]
+    ];
+    document.getElementById("score-table").querySelector("tbody").innerHTML =
+      scoreRows.map(function (r) {
+        var val = (r[1] == null)
+          ? '<td class="it-empty">暂无评分</td>'
+          : "<td>" + r[1] + "</td>";
+        return "<tr><th>" + r[0] + "</th>" + val + "</tr>";
+      }).join("");
 
-    // ---- 系列作品区块 ----
-    // 当前 tv-data.js 无 series 字段。启用方式：
-    // 1. 数据增加 series 字段（同一 IP 共用同一 id，如 "mdzs"）
-    // 2. 取消下方注释并补充查询逻辑，区块即自动显示
-    // 3. 无系列关联的作品保持隐藏（设想 §5.1.7）
-    /*
+    // ---- 系列作品区块（设想 §5.1.7） ----
+    // series_ids 为同系列作品 id 数组（tv-data id）；无系列关联的作品保持隐藏。
     var seriesBlock = document.getElementById("series-block");
-    var seriesId = work.series;
-    if (seriesId) {
-      var same = window.TV_DATA.filter(function (w) { return w.series === seriesId; })
+    if (work.series_ids && work.series_ids.length) {
+      var same = work.series_ids
+        .map(function (id) { return window.App.getWorkById(id); })
+        .filter(Boolean)
         .sort(function (a, b) { return (a.year || 0) - (b.year || 0); });
       document.getElementById("series-list").innerHTML = same.map(function (w) {
         var current = w.id === work.id;
@@ -177,6 +192,5 @@
       }).join("");
       seriesBlock.hidden = false;
     }
-    */
   });
 })();
