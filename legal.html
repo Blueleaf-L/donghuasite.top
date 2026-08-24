@@ -1,30 +1,21 @@
 <!DOCTYPE html>
-<!-- ============================================================
-  国产动画资料库 | 免责与版权声明 legal.html
-  ------------------------------------------------------------
-  内容依据设想文档：
-  - §5.1.3 评级免责声明（评级仅供参考）
-  - §8 版权合规：低分辨率缩略图 + 热链 + 标注 + 通知-删除
-  - 非营利声明与投诉邮箱
-  ============================================================ -->
 <html lang="zh-CN">
-
 <head>
+  <script>try{if(localStorage.getItem("gcan-theme")==="dark")document.documentElement.setAttribute("data-theme","dark");}catch(e){}</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>免责与版权声明 | 国产动画资料库</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="css/style.css">
 </head>
-
 <body>
-  <!-- 顶栏（由 common.js 挂载） -->
   <header class="site-header" id="site-header"></header>
+  <nav class="mobile-dock" id="mobile-dock" aria-label="移动端导航"></nav>
 
   <main class="site-main">
     <div class="container">
       <article class="legal-body">
-
+        <span class="eyebrow" style="font-size:var(--fs-small);letter-spacing:.16em;color:var(--accent);font-weight:600;text-transform:uppercase;">Legal</span>
         <h1>免责与版权声明</h1>
 
         <div class="notice">
@@ -45,21 +36,15 @@
 
         <h2>五、联系方式</h2>
         <p>反馈与投诉邮箱：contribute@example.com（正式邮箱待定）。</p>
-
       </article>
     </div>
   </main>
 
-  <!-- 页脚（由 common.js 挂载） -->
   <footer class="site-footer" id="site-footer"></footer>
 
   <script src="js/common.js"></script>
   <script>
-    // 声明页无数据依赖，仅挂载公共骨架
-    document.addEventListener("DOMContentLoaded", function () {
-      window.App.mountChrome(null);
-    });
+    document.addEventListener("DOMContentLoaded", function () { window.App.mountChrome(null); });
   </script>
 </body>
-
 </html>

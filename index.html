@@ -1,92 +1,71 @@
 <!DOCTYPE html>
-<!-- ============================================================
-  国产动画资料库 | 主页 index.html
-  ------------------------------------------------------------
-  结构（自上而下）：
-  1. 定位区（hero）：站名定位 + 收录统计（JS 填充数字）
-  2. 全站搜索（#search-box，由 js/index.js 的 App.initSearch 注入）
-  3. 年度推荐 · 强推荐 作品（横向滚动卡片行，JS 渲染）
-  4. 模块入口：剧集动画 / 动画电影 / 公司总览 / 行业资讯
-  5. 页脚（#site-footer，由 js/common.js 的 App.mountChrome 注入）
-
-  依赖：css/style.css、tv-data.js（数据）、js/common.js（公共）、js/index.js（本页逻辑）
-  注：顶栏导航由 common.js 统一挂载，勿在此手写导航。
-  ============================================================ -->
 <html lang="zh-CN">
-
 <head>
+  <script>try{if(localStorage.getItem("gcan-theme")==="dark")document.documentElement.setAttribute("data-theme","dark");}catch(e){}</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>国产动画资料库 | 把国产动画讲清楚</title>
-  <meta name="description" content="收录剧集动画与动画电影的信息、制作公司、评分与评级，独立于平台之外，供爱好者查阅参考。">
+  <title>国产动画资料库 | 国产动画，一处可查</title>
+  <meta name="description" content="收录剧集动画与动画电影的信息、制作公司、评分与评级，独立于平台之外的中立档案。">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="css/style.css">
 </head>
-
 <body>
-  <!-- 顶栏（由 common.js 挂载导航内容） -->
   <header class="site-header" id="site-header"></header>
+  <nav class="mobile-dock" id="mobile-dock" aria-label="移动端导航"></nav>
 
   <main class="site-main">
     <div class="container">
 
-      <!-- ============ 1. 定位区 ============ -->
       <section class="site-hero">
-        <h1 class="hero-title">把国产动画<span class="mark">讲清楚</span></h1>
-        <p class="hero-sub">收录剧集动画与动画电影的信息、制作公司、评分与评级，供爱好者查阅参考。</p>
-        <!-- 统计数字由 js/index.js 从数据实时计算填充 -->
+        <h1 class="hero-title">国产动画，一处可查</h1>
+        <p class="hero-sub">剧集 · 电影 · 制作公司 · 评分与评级，独立于平台之外的中立档案。</p>
         <p class="stat-line-hero">
-          <span>已收录 <strong id="stat-total">…</strong> 部作品</span>
+          <span class="stat">已收录 <strong id="stat-total">…</strong> 部作品</span>
           <span class="sep"></span>
-          <span><strong id="stat-company">…</strong> 家制作公司</span>
+          <span class="stat"><strong id="stat-company">…</strong> 家制作公司</span>
         </p>
       </section>
 
-      <!-- ============ 2. 全站搜索（作品 / 公司） ============ -->
       <div id="search-box"></div>
 
-      <!-- ============ 3. 年度推荐 · 强推荐 作品 ============ -->
-      <section class="home-block">
+      <section class="home-block reveal">
         <div class="h-scroll-head">
-          <h2>年度推荐 · 强推荐 作品</h2>
+          <h2>年度推荐 · 强推荐</h2>
           <span class="sub">评级仅供参考，作品质量请以自身观看体验为准。</span>
-          <!-- 左右滚动按钮（PC 上除滚轮/拖拽外的滚动入口） -->
           <div class="h-scroll-nav">
             <button type="button" class="btn" id="top-works-prev" aria-label="上一组">←</button>
             <button type="button" class="btn" id="top-works-next" aria-label="下一组">→</button>
           </div>
         </div>
-        <!-- 卡片行由 js/index.js 渲染（横向滚动：按钮 / 滚轮 / 鼠标拖拽） -->
         <div class="h-scroll" id="top-works"></div>
       </section>
 
-      <!-- ============ 4. 模块入口 ============ -->
-      <section class="home-block">
-        <h2>模块入口</h2>
+      <section class="home-block reveal">
+        <div class="section-head"><h2>模块入口</h2></div>
         <div class="entry-grid">
-          <a class="entry-card" href="series.html">
+          <a class="entry-card" href="series.html" style="--ec-fg:var(--jade);--ec-bg:var(--jade-soft);">
             <div class="ec-icon">剧</div>
             <h3>剧集动画</h3>
-            <p class="ec-desc">按平台、技术类型、题材、评级组合筛选，快速检索每部作品。</p>
-            <span class="ec-go">进入 →</span>
+            <p class="ec-desc">按平台、技术类型、题材、评级组合筛选，快速检索每一部作品。</p>
+            <span class="ec-go">进入</span>
           </a>
-          <a class="entry-card" href="movies.html">
+          <a class="entry-card" href="movies.html" style="--ec-fg:var(--accent);--ec-bg:var(--accent-soft);">
             <div class="ec-icon">影</div>
             <h3>动画电影</h3>
             <p class="ec-desc">院线与网络动画电影，附票房排行榜。</p>
-            <span class="ec-go">进入 →</span>
+            <span class="ec-go">进入</span>
           </a>
-          <a class="entry-card" href="company.html">
+          <a class="entry-card" href="company.html" style="--ec-fg:var(--gold);--ec-bg:var(--gold-soft);">
             <div class="ec-icon">司</div>
             <h3>公司总览</h3>
             <p class="ec-desc">按公司聚合旗下作品，查看产能与品控指标。</p>
-            <span class="ec-go">进入 →</span>
+            <span class="ec-go">进入</span>
           </a>
-          <a class="entry-card" href="industry.html">
-            <div class="ec-icon">势</div>
-            <h3>行业资讯</h3>
-            <p class="ec-desc">年度产量、技术类型构成、公司产量排行等图表。</p>
-            <span class="ec-go">进入 →</span>
+          <a class="entry-card" href="industry.html" style="--ec-fg:var(--cinnabar);--ec-bg:var(--cinnabar-soft);">
+            <div class="ec-icon">图</div>
+            <h3>数据统计</h3>
+            <p class="ec-desc">年度产量、技术类型、推荐率走势等图表，观察整体走向。</p>
+            <span class="ec-go">进入</span>
           </a>
         </div>
       </section>
@@ -94,13 +73,10 @@
     </div>
   </main>
 
-  <!-- 页脚（由 common.js 挂载内容） -->
   <footer class="site-footer" id="site-footer"></footer>
 
-  <!-- 脚本：数据 → 公共逻辑 → 本页逻辑 -->
   <script src="tv-data.js"></script>
   <script src="js/common.js"></script>
   <script src="js/index.js"></script>
 </body>
-
 </html>

@@ -1,21 +1,16 @@
 <!DOCTYPE html>
-<!-- ============================================================
-  国产动画资料库 | 404 页 404.html
-  页面不存在时的友好提示（Cloudflare Pages 默认读取 404.html）
-  ============================================================ -->
 <html lang="zh-CN">
-
 <head>
+  <script>try{if(localStorage.getItem("gcan-theme")==="dark")document.documentElement.setAttribute("data-theme","dark");}catch(e){}</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>页面不存在 | 国产动画资料库</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="css/style.css">
 </head>
-
 <body>
-  <!-- 顶栏（由 common.js 挂载） -->
   <header class="site-header" id="site-header"></header>
+  <nav class="mobile-dock" id="mobile-dock" aria-label="移动端导航"></nav>
 
   <main class="site-main">
     <div class="container">
@@ -28,15 +23,11 @@
     </div>
   </main>
 
-  <!-- 页脚（由 common.js 挂载） -->
   <footer class="site-footer" id="site-footer"></footer>
 
   <script src="js/common.js"></script>
   <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      window.App.mountChrome(null);
-    });
+    document.addEventListener("DOMContentLoaded", function () { window.App.mountChrome(null); });
   </script>
 </body>
-
 </html>

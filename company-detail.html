@@ -1,41 +1,22 @@
 <!DOCTYPE html>
-<!-- ============================================================
-  国产动画资料库 | 公司详情页 company-detail.html（模板页）
-  ------------------------------------------------------------
-  通过 URL 参数 ?name=xxx 指定公司。
-  示例：company-detail.html?name=视美
-
-  结构（自上而下）：
-  1. 面包屑（JS 生成：首页 / 公司总览 / 公司名）
-  2. 详情头：公司名 + 制作类型 + 统计行（作品数 / 活跃年份 / 推荐率）
-  3. 能力雷达图（#radar-chart，ECharts；已评级 < 3 部时显示"数据积累中"）
-  4. 作品时间线（#timeline，横向时间轴 + 年份范围筛选）
-  5. 旗下作品列表（#work-grid + 评级筛选 / 排序）
-
-  依赖：css/style.css、tv-data.js、js/common.js、js/company-detail.js
-  图表：ECharts（CDN，离线时自动降级）
-  ============================================================ -->
 <html lang="zh-CN">
-
 <head>
+  <script>try{if(localStorage.getItem("gcan-theme")==="dark")document.documentElement.setAttribute("data-theme","dark");}catch(e){}</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>公司详情 | 国产动画资料库</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="css/style.css">
 </head>
-
 <body>
-  <!-- 顶栏（由 common.js 挂载） -->
   <header class="site-header" id="site-header"></header>
+  <nav class="mobile-dock" id="mobile-dock" aria-label="移动端导航"></nav>
 
   <main class="site-main">
     <div class="container">
 
-      <!-- 面包屑（company-detail.js 填充） -->
       <nav class="breadcrumb" id="breadcrumb" aria-label="面包屑"></nav>
 
-      <!-- ============ 详情头 ============ -->
       <section class="detail-head">
         <div class="detail-body">
           <h1 id="dh-name">…</h1>
@@ -44,58 +25,60 @@
         </div>
       </section>
 
-      <!-- ============ 能力雷达图 ============ -->
-      <section class="chart-box">
-        <h2>能力雷达</h2>
-        <p class="sub">产能 · 品控（推荐率）· 良品率 · 翻车率 · 系列化能力。全部为客观统计，不含评分。样本不足（已评级 &lt; 3）时不展示。</p>
-        <div class="chart chart--sm" id="radar-chart"></div>
+      <!-- 能力概览：KPI 指标卡 + 评级分布条（替代雷达图） -->
+      <section class="detail-block">
+        <h2>能力概览 <span class="sub">客观统计，不含评分</span></h2>
+        <div class="kpi-grid" id="kpi-grid"></div>
+        <div class="grade-dist" id="grade-dist" style="margin-top:var(--sp-4)"></div>
+        <div class="grade-dist-legend" id="grade-dist-legend"></div>
       </section>
 
-      <!-- ============ 作品时间线 ============ -->
+      <!-- 作品时间线 -->
       <section class="detail-block">
-        <h2>作品时间线 <span class="sub" id="tl-sub"></span></h2>
-        <div class="filter-row" style="margin-bottom: 8px">
-          <span class="f-label">年份</span>
-          <div class="year-range">
-            <input type="number" id="f-year-from" min="1970" max="2030" placeholder="起" aria-label="起始年份">
-            <span>至</span>
-            <input type="number" id="f-year-to" min="1970" max="2030" placeholder="止" aria-label="结束年份">
+        <div class="section-head">
+          <h2>作品时间线 <span class="sub" id="tl-sub"></span></h2>
+          <div class="head-side">
+            <div class="year-range">
+              <input type="number" id="f-year-from" min="1970" max="2030" placeholder="起" aria-label="起始年份">
+              <span>至</span>
+              <input type="number" id="f-year-to" min="1970" max="2030" placeholder="止" aria-label="结束年份">
+            </div>
+            <div class="h-timeline-nav">
+              <button type="button" class="btn" id="tl-prev" aria-label="向左">←</button>
+              <button type="button" class="btn" id="tl-next" aria-label="向右">→</button>
+            </div>
           </div>
         </div>
         <div class="h-timeline" id="timeline"></div>
       </section>
 
-      <!-- ============ 旗下作品列表 ============ -->
+      <!-- 旗下作品 -->
       <section class="detail-block">
-        <h2>旗下作品 <span class="sub" id="works-sub"></span></h2>
-        <div class="filter-row" style="margin-bottom: 12px">
-          <span class="f-label">评级</span>
-          <div class="chip-group" id="f-grade"></div>
-          <div class="sort-box" style="margin-left: auto">
-            <label for="f-sort">排序</label>
-            <select id="f-sort">
-              <option value="year-desc">年份（新 → 旧）</option>
-              <option value="year-asc">年份（旧 → 新）</option>
-              <option value="grade">评级（优 → 差）</option>
-            </select>
+        <div class="section-head">
+          <h2>旗下作品 <span class="sub" id="works-sub"></span></h2>
+          <div class="head-side">
+            <div class="chip-group" id="f-grade"></div>
+            <div class="sort-box">
+              <label for="f-sort">排序</label>
+              <select id="f-sort">
+                <option value="year-desc">年份（新 → 旧）</option>
+                <option value="year-asc">年份（旧 → 新）</option>
+                <option value="grade">评级（优 → 差）</option>
+              </select>
+            </div>
           </div>
         </div>
-        <div class="work-grid work-grid--wide" id="work-grid"></div>
+        <div class="work-grid work-grid--wide" id="work-grid" style="margin-top:var(--sp-4)"></div>
       </section>
 
     </div>
   </main>
 
-  <!-- 页脚（由 common.js 挂载） -->
   <footer class="site-footer" id="site-footer"></footer>
 
-  <!-- 脚本 -->
-  <!-- ECharts 已本地化（js/echarts.min.js），避免第三方 CDN 阻塞与失效 -->
-  <script src="js/echarts.min.js"></script>
   <script src="tv-data.js"></script>
   <script src="companies.js"></script>
   <script src="js/common.js"></script>
   <script src="js/company-detail.js"></script>
 </body>
-
 </html>

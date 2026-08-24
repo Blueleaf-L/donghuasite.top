@@ -1,50 +1,28 @@
-/* ============================================================
-   国产动画资料库 | 行业资讯页逻辑 js/industry.js
-   ------------------------------------------------------------
-   职责：从作品数据聚合统计，渲染 5 个 ECharts 图表：
-   1. 年度产量趋势（柱状）
-   2. 技术类型构成（堆叠柱状）
-   3. 评级分布年度变化（堆叠柱状）
-   4. 改编来源构成（堆叠柱状）
-   5. 公司产量 TOP10（横向柱状，中性统计）
-
-   颜色体系：朱砂单色系 + 纸墨灰阶（与全站一致，见 style.css 令牌）
-   离线时（ECharts CDN 加载失败）全部图表降级为文字提示。
-   ============================================================ */
+/* 国产动画资料库 | 数据统计页逻辑
+   （「年度推荐占比走势」折线替代原「评级分布堆叠柱」） */
 (function () {
   "use strict";
 
-  /** 全部作品。 */
   var WORKS = window.TV_DATA || [];
+  var charts = [];
 
-  /* ---- 配色（保持全站单色系） ---- */
-  var COLORS = {
-    // 技术类型
-    tech: { "2D": "#b23a30", "3D": "#6b635a", "三渲二": "#d98a80", "其他": "#c9c2b4" },
-    // 评级（优 → 差）
-    grade: {
-      "年度推荐": "#b23a30", "佳作": "#26221d", "还行": "#8a6f5a",
-      "能看": "#a8a092", "暂未评级": "#d6cdbb", "不推荐": "#9a2b23"
-    },
-    // 改编来源
-    adaptation: {
-      "原创": "#b23a30", "小说改": "#6b635a", "漫画改": "#d98a80",
-      "游戏改": "#a8a092", "其他": "#c9c2b4"
-    }
-  };
+  function palette() {
+    var ct = window.App.chartTheme();
+    return {
+      tech: { "2D": ct.jade, "3D": ct.accent, "三渲二": ct.gold, "其他": ct.ink },
+      adaptation: {
+        "原创": ct.accent, "小说改": ct.jade, "漫画改": ct.gold,
+        "游戏改": "#7f9cc4", "神话传说改": "#b0815a", "剧集改": ct.ink, "其他": "#9a9a94"
+      }
+    };
+  }
 
-  /* ============================================================
-     数据聚合（按年份，仅收录有效年份的作品）
-     ============================================================ */
-
-  /** 年份数组（升序，含数据的年份）。 */
   function years() {
     var set = {};
     WORKS.forEach(function (w) { if (w.year) set[w.year] = true; });
     return Object.keys(set).map(Number).sort(function (a, b) { return a - b; });
   }
 
-  /** 年度产量：{ year: count } */
   function yearlyTotal(ys) {
     var map = {};
     ys.forEach(function (y) { map[y] = 0; });
@@ -52,7 +30,6 @@
     return map;
   }
 
-  /** 年度 × 分类 计数：{ year: { key: count } }，keys 为外部传入的类别数组。 */
   function yearlyBy(ys, keys, getter) {
     var map = {};
     ys.forEach(function (y) {
@@ -62,55 +39,48 @@
     });
     WORKS.forEach(function (w) {
       if (!w.year || !map[w.year]) return;
-      var key = getter(w);
-      if (key && map[w.year][key] != null) map[w.year][key]++;
+      var raw = getter(w);
+      var list = Array.isArray(raw) ? raw : [raw];
+      list.forEach(function (key) { if (key && map[w.year][key] != null) map[w.year][key]++; });
     });
     return map;
   }
 
-  /** 技术类型对外名（"特殊类型" → "其他"）。 */
   function techKey(w) { return w.tech === "特殊类型" ? "其他" : w.tech; }
 
-  /* ============================================================
-     图表渲染
-     ============================================================ */
-
-  /** 统一降级提示（CDN 离线）。 */
-  function fallback(elId) {
-    document.getElementById(elId).innerHTML =
-      '<p class="db-empty">图表库加载失败（需联网加载 ECharts）。</p>';
+  function disposeAll() {
+    charts.forEach(function (c) { try { c.dispose(); } catch (e) {} });
+    charts = [];
   }
 
-  /** 通用 x 轴配置。 */
-  function xAxisConfig(cat) {
+  function axisTheme(ct) {
     return {
-      type: "category",
-      data: cat,
-      axisLine: { lineStyle: { color: "#d6cdbb" } },
-      axisLabel: { color: "#766d5f", fontSize: 11 },
-      axisTick: { show: false }
+      axisLine: { lineStyle: { color: ct.axisLine } },
+      axisLabel: { color: ct.text, fontSize: 11 },
+      axisTick: { show: false },
+      splitLine: { lineStyle: { color: ct.gridLine } }
     };
   }
 
-  /** 通用 y 轴配置。 */
-  function yAxisConfig() {
+  function tipTheme(ct) {
     return {
-      type: "value",
-      minInterval: 1,
-      splitLine: { lineStyle: { color: "#eee7da" } },
-      axisLabel: { color: "#766d5f", fontSize: 11 }
+      backgroundColor: ct.tooltip.backgroundColor,
+      borderColor: ct.tooltip.borderColor,
+      textStyle: ct.tooltip.textStyle,
+      extraCssText: ct.tooltip.extraCssText
     };
   }
 
-  /** 堆叠柱状图通用构建。 */
   function stackedBar(elId, cat, keys, dataMap, colors, stackName) {
+    var ct = window.App.chartTheme();
     var chart = echarts.init(document.getElementById(elId));
+    charts.push(chart);
     chart.setOption({
-      grid: { left: 40, right: 16, top: 36, bottom: 28 },
-      tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
-      legend: { top: 0, textStyle: { color: "#6b635a", fontSize: 12 } },
-      xAxis: xAxisConfig(cat),
-      yAxis: yAxisConfig(),
+      grid: { left: 40, right: 16, top: 40, bottom: 28 },
+      tooltip: Object.assign({ trigger: "axis", axisPointer: { type: "shadow" } }, tipTheme(ct)),
+      legend: { top: 0, textStyle: { color: ct.textStrong, fontSize: 12 } },
+      xAxis: Object.assign({ type: "category", data: cat }, axisTheme(ct)),
+      yAxis: Object.assign({ type: "value", minInterval: 1 }, axisTheme(ct)),
       series: keys.map(function (k) {
         return {
           name: k, type: "bar", stack: stackName,
@@ -120,101 +90,133 @@
         };
       })
     });
-    return chart;
   }
 
-  /** 渲染全部图表。 */
   function renderAll() {
-    var charts = [];
+    disposeAll();
+    var ct = window.App.chartTheme();
+    var col = palette();
     var ys = years();
     var cat = ys.map(String);
 
-    // 1. 年度产量趋势（柱状）
+    // 1. 年度产量趋势
     (function () {
       var map = yearlyTotal(ys);
       var chart = echarts.init(document.getElementById("chart-yearly"));
+      charts.push(chart);
       chart.setOption({
         grid: { left: 40, right: 16, top: 24, bottom: 28 },
-        tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
-        xAxis: xAxisConfig(cat),
-        yAxis: yAxisConfig(),
+        tooltip: Object.assign({ trigger: "axis", axisPointer: { type: "shadow" } }, tipTheme(ct)),
+        xAxis: Object.assign({ type: "category", data: cat }, axisTheme(ct)),
+        yAxis: Object.assign({ type: "value", minInterval: 1 }, axisTheme(ct)),
         series: [{
           name: "新作数", type: "bar",
           data: cat.map(function (y) { return map[Number(y)]; }),
-          itemStyle: { color: "#b23a30", borderRadius: [3, 3, 0, 0] },
-          barMaxWidth: 18
+          itemStyle: {
+            borderRadius: [4, 4, 0, 0],
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: ct.accent }, { offset: 1, color: ct.jade }
+            ])
+          },
+          barMaxWidth: 20
         }]
       });
+    })();
+
+    // 2. 技术类型构成
+    stackedBar("chart-tech", cat, ["2D", "3D", "三渲二", "其他"],
+      yearlyBy(ys, ["2D", "3D", "三渲二", "其他"], techKey), col.tech, "tech");
+
+    // 3. 年度推荐占比走势（折线）
+    (function () {
+      var rates = {};
+      ys.forEach(function (y) {
+        var rated = WORKS.filter(function (w) { return w.year === y && w.grade && w.grade !== "暂未评级"; });
+        var good = rated.filter(function (w) { return w.grade === "年度推荐" || w.grade === "佳作"; });
+        rates[y] = rated.length ? +(good.length / rated.length * 100).toFixed(1) : null;
+      });
+      var chart = echarts.init(document.getElementById("chart-recommend"));
       charts.push(chart);
+      chart.setOption({
+        grid: { left: 44, right: 24, top: 24, bottom: 28 },
+        tooltip: Object.assign({
+          trigger: "axis",
+          formatter: function (p) {
+            var d = p[0];
+            return d.value == null
+              ? d.axisValue + " 年<br>暂无已评级作品"
+              : d.axisValue + " 年<br>推荐 + 佳作占比：" + d.value + "%";
+          }
+        }, tipTheme(ct)),
+        xAxis: Object.assign({ type: "category", data: cat, boundaryGap: false }, axisTheme(ct)),
+        yAxis: Object.assign({ type: "value", min: 0, max: 100 }, axisTheme(ct), {
+          axisLabel: { color: ct.text, fontSize: 11, formatter: "{value}%" }
+        }),
+        series: [{
+          name: "年度推荐+佳作占比", type: "line",
+          data: cat.map(function (y) { return rates[Number(y)]; }),
+          smooth: true, connectNulls: false,
+          symbol: "circle", symbolSize: 6,
+          lineStyle: { width: 2.5, color: ct.cinnabar },
+          itemStyle: { color: ct.cinnabar },
+          areaStyle: { color: "rgba(194,64,47,0.09)" }
+        }]
+      });
     })();
 
-    // 2. 技术类型构成（堆叠柱状）
-    (function () {
-      var keys = ["2D", "3D", "三渲二", "其他"];
-      var map = yearlyBy(ys, keys, techKey);
-      charts.push(stackedBar("chart-tech", cat, keys, map, COLORS.tech, "tech"));
-    })();
+    // 4. 改编来源构成
+    stackedBar("chart-adaptation", cat, ["原创", "小说改", "漫画改", "游戏改", "神话传说改", "剧集改", "其他"],
+      yearlyBy(ys, ["原创", "小说改", "漫画改", "游戏改", "神话传说改", "剧集改", "其他"], function (w) { return w.adaptation; }),
+      col.adaptation, "adapt");
 
-    // 3. 评级分布年度变化（堆叠柱状）
-    (function () {
-      var keys = ["年度推荐", "佳作", "还行", "能看", "暂未评级", "不推荐"];
-      var map = yearlyBy(ys, keys, function (w) { return w.grade; });
-      charts.push(stackedBar("chart-grade", cat, keys, map, COLORS.grade, "grade"));
-    })();
-
-    // 4. 改编来源构成（堆叠柱状）
-    (function () {
-      var keys = ["原创", "小说改", "漫画改", "游戏改", "其他"];
-      var map = yearlyBy(ys, keys, function (w) { return w.adaptation; });
-      charts.push(stackedBar("chart-adaptation", cat, keys, map, COLORS.adaptation, "adapt"));
-    })();
-
-    // 5. 公司产量 TOP10（横向柱状，中性统计）
+    // 5. 公司产量 TOP10
     (function () {
       var map = {};
-      WORKS.forEach(function (w) {
-        if (w.company) map[w.company] = (map[w.company] || 0) + 1;
-      });
+      WORKS.forEach(function (w) { if (w.company) map[w.company] = (map[w.company] || 0) + 1; });
       var top = Object.keys(map)
         .sort(function (a, b) { return map[b] - map[a]; })
         .slice(0, 10)
-        .reverse(); // 反转使第一名在顶部
+        .reverse();
       var chart = echarts.init(document.getElementById("chart-company"));
+      charts.push(chart);
       chart.setOption({
-        grid: { left: 90, right: 40, top: 16, bottom: 24 },
-        tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
-        xAxis: { type: "value", minInterval: 1, splitLine: { lineStyle: { color: "#eee7da" } }, axisLabel: { color: "#766d5f", fontSize: 11 } },
+        grid: { left: 110, right: 48, top: 16, bottom: 24 },
+        tooltip: Object.assign({ trigger: "axis", axisPointer: { type: "shadow" } }, tipTheme(ct)),
+        xAxis: Object.assign({ type: "value", minInterval: 1 }, axisTheme(ct)),
         yAxis: {
           type: "category", data: top,
-          axisLine: { lineStyle: { color: "#d6cdbb" } },
-          axisLabel: { color: "#6b635a", fontSize: 12 }
+          axisLine: { lineStyle: { color: ct.axisLine } },
+          axisLabel: { color: ct.textStrong, fontSize: 12 },
+          axisTick: { show: false }
         },
         series: [{
           name: "作品数", type: "bar",
           data: top.map(function (c) { return map[c]; }),
-          itemStyle: { color: "#6b635a", borderRadius: [0, 3, 3, 0] },
+          itemStyle: {
+            borderRadius: [0, 4, 4, 0],
+            color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+              { offset: 0, color: ct.jade }, { offset: 1, color: ct.accent }
+            ])
+          },
           barMaxWidth: 16
         }]
       });
-      charts.push(chart);
     })();
-
-    // 窗口缩放统一自适应
-    window.addEventListener("resize", function () {
-      charts.forEach(function (c) { c.resize(); });
-    });
   }
 
-  /* ============================================================
-     启动
-     ============================================================ */
+  function fallback() {
+    ["chart-yearly", "chart-tech", "chart-recommend", "chart-adaptation", "chart-company"]
+      .forEach(function (elId) {
+        document.getElementById(elId).innerHTML = '<p class="db-empty">图表库加载失败（需联网加载 ECharts）。</p>';
+      });
+  }
+
   document.addEventListener("DOMContentLoaded", function () {
     window.App.mountChrome("industry");
-    if (!window.echarts) {
-      ["chart-yearly", "chart-tech", "chart-grade", "chart-adaptation", "chart-company"]
-        .forEach(fallback);
-      return;
-    }
+    if (!window.echarts) { fallback(); return; }
     renderAll();
+    window.App.onThemeChange(function () { renderAll(); });
+    window.addEventListener("resize", function () { charts.forEach(function (c) { c.resize(); }); });
+    window.App.initReveal();
   });
 })();
